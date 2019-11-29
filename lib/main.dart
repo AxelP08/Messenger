@@ -14,10 +14,10 @@ class Chat extends StatelessWidget {
 
 class Estado extends StatefulWidget{
   @override
-  State createState() => new ChatState();
+  State createState() => new Chats();
 }
 
-class ChatState extends State<Estado> {
+class Chats extends State<Estado> {
 
   final textController = TextEditingController();
 
@@ -26,7 +26,6 @@ class ChatState extends State<Estado> {
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
         width: 200.0,
-        padding: EdgeInsets.fromLTRB(200.0, 0, 0.0, 0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
@@ -50,10 +49,16 @@ class ChatState extends State<Estado> {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(left: 5),
-                child: Icon(Icons.account_circle,
-                  color: Colors.blue,
-                  size: 40,)
+                width: 35,
+                height: 35,
+                margin: EdgeInsets.only(left: 5),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                        image: AssetImage("img/yo.jpg"),
+                        fit: BoxFit.fill
+                    )
+                ),
             ),
           ],
         ),
@@ -74,11 +79,17 @@ class ChatState extends State<Estado> {
           appBar: AppBar(
             backgroundColor: Colors.white,
 
-            leading: IconButton(
-                icon: Icon(Icons.account_circle,
-                  color: Colors.blue,
-                  size: 40,)
-            ),
+            leading: Padding(
+                padding: EdgeInsets.all(8),
+                child: Container(
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                          image: AssetImage("img/felipe.jpg"),
+                          fit: BoxFit.fill
+                      )
+                  ),
+            )),
 
             title: Column(
               verticalDirection: VerticalDirection.down,
@@ -115,33 +126,29 @@ class ChatState extends State<Estado> {
           child: StreamBuilder(
           stream: bd.collection("messenger").snapshots(),
           builder: (context, snapshot) {
-           return Column(
-             crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Flexible(
-                child: ListView.builder(
-                  padding: EdgeInsets.all(20.0),
-                  reverse: false,
-                  itemBuilder: (context, index) => buildItem(index, snapshot.data.documents[index]),
-                  itemCount: snapshot.data.documents.length,
-                ),
-              ),
-              Divider(height: 5.0),
-              Container(
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor),
-                  child:
-                  buildTextComposer()
-              ),
-            ],
-          );
-        }
+             return Column(
+               crossAxisAlignment: CrossAxisAlignment.end,
+               children: <Widget>[
+                 Flexible(
+                   child: ListView.builder(
+                     padding: EdgeInsets.all(20.0),
+                     reverse: false,
+                     itemBuilder: (context, index) => buildItem(index, snapshot.data.documents[index]),
+                     itemCount: snapshot.data.documents.length,
+                   ),
+                 ),
+                 Container(
+                     child: escribirMensajeUI()
+                 ),
+               ],
+             );
+          }
         ),
       )
     ));
   }
 
-  Widget buildTextComposer() {
+  Widget escribirMensajeUI() {
     return new IconTheme(
       data: new IconThemeData(color: Theme.of(context).accentColor),
       child: Container(
@@ -166,9 +173,11 @@ class ChatState extends State<Estado> {
             ),
             Flexible(
               child: Container(
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: Color.fromRGBO(10, 10, 10, .05),),
+                height: 35,
+                margin: EdgeInsets.only(top: 1, bottom: 1, right: 5),
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: Color.fromRGBO(10, 10, 10, .05)),
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
+                  padding: const EdgeInsets.only(left: 6, top: 8, right: 6),
                   child:
                   TextField(
                     controller: textController,
@@ -176,7 +185,8 @@ class ChatState extends State<Estado> {
                       insertar(textController.text);
                       textController.clear();
                     },
-                    decoration: InputDecoration(
+                    decoration: InputDecoration.collapsed(
+                      //contentPadding: EdgeInsets.only(top: 8, left: 5, right: 5),
                       hintText: "Aa",
                     ),
                     cursorColor: Colors.blueAccent,
@@ -187,16 +197,16 @@ class ChatState extends State<Estado> {
 
             Icon(Icons.insert_emoticon, color: Colors.blueAccent,),
 
-            Container( //new
-              margin: EdgeInsets.symmetric(horizontal: 4.0), //new
-              child: IconButton( //new
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 4.0),
+              child: IconButton(
                 icon: Icon(Icons.send),
-                color: Colors.blueAccent,//new
+                color: Colors.blueAccent,
                 onPressed: () {
                   insertar(textController.text);
                   textController.clear();
                 },
-              ), //new
+              ),
             ),
           ],
         ),
