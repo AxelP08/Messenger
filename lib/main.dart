@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+//Import para hacer transparente la barra de estado:
+import 'package:flutter/services.dart';
+
 void main() => runApp(Chat());
 
 final bd = Firestore.instance;
@@ -21,7 +24,9 @@ class Chats extends State<Estado> {
 
   final textController = TextEditingController();
 
+  //Método que construye el diseño de la lista para cada mensaje:
   Widget buildItem(int index, DocumentSnapshot document){
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
@@ -31,7 +36,7 @@ class Chats extends State<Estado> {
           children: <Widget>[
             Container(
               decoration: BoxDecoration(
-                color: Color.fromRGBO(10, 10, 10, .1),
+                color: Colors.blueAccent,
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Column(
@@ -42,6 +47,7 @@ class Chats extends State<Estado> {
                     child: Text(document.data['mensaje'],
                       style: TextStyle(
                         fontSize: 15,
+                        color: Colors.white
                       ),
                     ),
                   ),
@@ -66,14 +72,19 @@ class Chats extends State<Estado> {
     );
   }
 
+  //Vista de la app_
   @override
   Widget build(BuildContext context) {
 
-    Future.delayed(Duration(milliseconds: 500));
+    //Poner la barra de estado transparente para que se vea blanca:
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent
+    ));
 
     return new MaterialApp(
 
         debugShowCheckedModeBanner: false,
+        theme: ThemeData(primaryColor: Colors.white),
 
         home: Scaffold(
           appBar: AppBar(
@@ -123,95 +134,104 @@ class Chats extends State<Estado> {
           ),
 
         body: Container(
+
+          //Escuchar en tiempo real modificaciones en la base de datos:
           child: StreamBuilder(
           stream: bd.collection("messenger").snapshots(),
           builder: (context, snapshot) {
-             return Column(
-               crossAxisAlignment: CrossAxisAlignment.end,
-               children: <Widget>[
-                 Flexible(
-                   child: ListView.builder(
-                     padding: EdgeInsets.all(20.0),
-                     reverse: false,
-                     itemBuilder: (context, index) => buildItem(index, snapshot.data.documents[index]),
-                     itemCount: snapshot.data.documents.length,
-                   ),
-                 ),
-                 Container(
-                     child: escribirMensajeUI()
-                 ),
-               ],
-             );
+
+            //Si no hay datos, mostrar carga:
+            if(!snapshot.hasData) {
+              return Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                  ));
+            } else { //Si hay datos, mostrarlos:
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Flexible(
+                    child: ListView.builder(
+                      padding: EdgeInsets.all(20.0),
+                      reverse: false,
+                      itemBuilder: (context, index) =>
+                          buildItem(index, snapshot.data.documents[index]),
+                      itemCount: snapshot.data.documents.length,
+                    ),
+                  ),
+
+                  //Diseño de la barra inferior para escribir mensajes:
+                  Container(
+                      child: IconTheme(
+                        data: new IconThemeData(color: Theme.of(context).accentColor),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                          child: Row(
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Icon(Icons.apps, color: Colors.blueAccent,),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Icon(Icons.camera_alt, color: Colors.blueAccent,),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Icon(Icons.photo, color: Colors.blueAccent,),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Icon(Icons.mic, color: Colors.blueAccent,),
+                              ),
+                              Flexible(
+                                child: Container(
+                                  height: 35,
+                                  margin: EdgeInsets.only(top: 1, bottom: 1, right: 5),
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: Color.fromRGBO(10, 10, 10, .05)),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 6, top: 8, right: 6),
+                                    child:
+                                    TextField(
+                                      controller: textController,
+                                      onSubmitted: (String text) {
+                                        insertar(textController.text);
+                                        textController.clear();
+                                      },
+                                      decoration: InputDecoration.collapsed(
+                                        hintText: "Aa",
+                                      ),
+                                      cursorColor: Colors.blueAccent,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              Icon(Icons.insert_emoticon, color: Colors.blueAccent),
+
+                              Container(
+                                margin: EdgeInsets.symmetric(horizontal: 4.0),
+                                child: IconButton(
+                                  icon: Icon(Icons.send),
+                                  color: Colors.blueAccent,
+                                  onPressed: () {
+                                    insertar(textController.text);
+                                    textController.clear();
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                  ),
+                ],
+              );
+            }
           }
         ),
       )
     ));
-  }
-
-  Widget escribirMensajeUI() {
-    return new IconTheme(
-      data: new IconThemeData(color: Theme.of(context).accentColor),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Icon(Icons.apps, color: Colors.blueAccent,),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Icon(Icons.camera_alt, color: Colors.blueAccent,),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Icon(Icons.photo, color: Colors.blueAccent,),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Icon(Icons.mic, color: Colors.blueAccent,),
-            ),
-            Flexible(
-              child: Container(
-                height: 35,
-                margin: EdgeInsets.only(top: 1, bottom: 1, right: 5),
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: Color.fromRGBO(10, 10, 10, .05)),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 6, top: 8, right: 6),
-                  child:
-                  TextField(
-                    controller: textController,
-                    onSubmitted: (String text) {
-                      insertar(textController.text);
-                      textController.clear();
-                    },
-                    decoration: InputDecoration.collapsed(
-                      //contentPadding: EdgeInsets.only(top: 8, left: 5, right: 5),
-                      hintText: "Aa",
-                    ),
-                    cursorColor: Colors.blueAccent,
-                  ),
-                ),
-              ),
-            ),
-
-            Icon(Icons.insert_emoticon, color: Colors.blueAccent,),
-
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 4.0),
-              child: IconButton(
-                icon: Icon(Icons.send),
-                color: Colors.blueAccent,
-                onPressed: () {
-                  insertar(textController.text);
-                  textController.clear();
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
