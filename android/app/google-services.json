@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "195875308333",
+    "firebase_url": "https://messenger-d8411.firebaseio.com",
+    "project_id": "messenger-d8411",
+    "storage_bucket": "messenger-d8411.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:195875308333:android:cca50f1d6ad53c3cfe09a4",
+        "android_client_info": {
+          "package_name": "com.axelpantoja.messenger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "195875308333-ell4qc535vun646s9pkhj707cro9nkrv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbGVskjyKgFckOsOtZMXlMA0alzM2OkNI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "195875308333-ell4qc535vun646s9pkhj707cro9nkrv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
